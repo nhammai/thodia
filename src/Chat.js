@@ -11,16 +11,24 @@ const Chat = () => {
  }, []);
 
  const sendMessage = async () => {
-   const timestamp = new Date().toLocaleTimeString();
-   setMessages([...messages, { text: input, sender: 'Nham', timestamp }]);
+  setInput(''); // Clear the input field immediately
 
-   // Get the chatbot's response.
-   const chatbotResponse = await getChatbotResponse(input);
-   setMessages([...messages, { text: input, sender: 'Nham', timestamp }, { text: chatbotResponse, sender: 'Kenny', timestamp: new Date().toLocaleTimeString() }]);
+  const timestamp = new Date().toLocaleTimeString();
 
-   setInput('');
- };
+  // Add user's message to state immediately
+  setMessages(prevMessages => [
+    ...prevMessages,
+    { text: input, sender: 'Nham', timestamp }
+  ]);
 
+  const chatbotResponse = await getChatbotResponse(input);
+
+  // Add chatbot's response to state after it's received
+  setMessages(prevMessages => [
+    ...prevMessages,
+    { text: chatbotResponse, sender: 'Kenny', timestamp: new Date().toLocaleTimeString() }
+  ]);
+};
  const getChatbotResponse = async (message) => {
    try {
      const response = await axios.post('https://chatbotapi.nhammai.repl.co/ask', {
@@ -40,18 +48,18 @@ const Chat = () => {
        </div>
      ))}
      <div className="input-container">
-       <input
-         value={input}
-         onChange={(e) => setInput(e.target.value)}
-         onKeyPress={(e) => {
-           if (e.key === 'Enter') {
-             sendMessage();
-             e.preventDefault(); // This will prevent the form from being submitted which would cause a page refresh.
-           }
-         }}
-         type="text"
-         className="input-field"
-       />
+        <input
+      value={input}
+      onChange={(e) => setInput(e.target.value)}
+      onKeyPress={(e) => {
+        if (e.key === 'Enter') {
+          sendMessage();
+          e.preventDefault(); // This will prevent the form from being submitted which would cause a page refresh.
+        }
+      }}
+      type="text"
+      className="input-field"
+    />
        <button onClick={sendMessage} className="send-button">Send</button>
      </div>
    </div>
